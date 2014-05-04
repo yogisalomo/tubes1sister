@@ -1,9 +1,10 @@
 package if3230.tubes1;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.Scanner;
 
-public class Tester {
-	private	static Struktur S;
+public class MainDB {
 
 	public static void printTest(ArrayList<Data> D) {
 		Iterator<Data> it = D.iterator();
@@ -15,17 +16,9 @@ public class Tester {
 	}
 
 	public static void main(String[] args){
-		/*
-		S = new Struktur();
-		S.createTable("ganteng");
-		S.insertData("ganteng","001","Habibie Ganteng");
-		S.insertData("ganteng","002","Habibie Ganteng2");
-		S.createTable("ghabibie");
-		printTest(S.getAllDataFromTable("ghabibie"));
-		*/
 		Scanner reader = new Scanner(System.in);
 		System.out.println("1. Server, 2. Client");
-		System.out.print("Silahkan masukkan kode mode program diatas : "); int a = reader.nextInt();
+		System.out.print("Type 1 for Server. Type 2 for Client : "); int a = reader.nextInt();
 		if (a == 1) {
 			Server S = new Server();
 			S.start();
