@@ -22,21 +22,17 @@ public class Server extends Thread {
 	
 	//constructor
 	
-	public Server() {
+	public Server(int Port) {
+		dbStruct = new DBStructure();
 		try {
 			/* client-server port assignment */
 			
-			//get random port number between Protocol.MIN_SERVER2CLIENT_PORTNUMBER and Protocol.MAX_SERVER2CLIENT_PORTNUMBER
-			int port_number = (int)(Math.random() * (Protocol.MAX_SERVER2CLIENT_PORTNUMBER - Protocol.MIN_SERVER2CLIENT_PORTNUMBER + 1));
-			while(Protocol.isPortInUse(InetAddress.getLocalHost().getHostAddress(), port_number) == true){
-				port_number = (int)(Math.random() * (Protocol.MAX_SERVER2CLIENT_PORTNUMBER - Protocol.MIN_SERVER2CLIENT_PORTNUMBER + 1));
-			}
-			server_Socket = new ServerSocket(Protocol.MIN_SERVER2CLIENT_PORTNUMBER + port_number);
+			server_Socket = new ServerSocket(Port);
 			//port yang didapat menjadi port number ke client
 			to_client_port = server_Socket.getLocalPort();
 			
 			/* server-server port assignment */
-			
+			int port_number;
 			//get random port number between Protocol.MIN_SERVER2CLIENT_PORTNUMBER and Protocol.MAX_SERVER2CLIENT_PORTNUMBER
 			port_number = (int)(Math.random() * (Protocol.MAX_SERVER2SERVER_PORTNUMBER - Protocol.MIN_SERVER2SERVER_PORTNUMBER + 1));
 			while(Protocol.isPortInUse(InetAddress.getLocalHost().getHostAddress(), port_number) == true){
@@ -45,20 +41,18 @@ public class Server extends Thread {
 			server_Socket_toServer = new ServerSocket(Protocol.MIN_SERVER2SERVER_PORTNUMBER + port_number);
 			//port yang didapat menjadi port number ke server lain
 			to_server_port = server_Socket_toServer.getLocalPort();
-			System.out.println("dapat port untuk listen ke sesama server di " + server_Socket_toServer.getLocalPort());
+			System.out.println("(will) Listening on server2server port " + server_Socket_toServer.getLocalPort() + "...");
 			
 			//looking for available connection to ANOTHER server
 			port_number = Protocol.getAvailablePortNumber(InetAddress.getLocalHost().getHostAddress(),Protocol.MIN_SERVER2SERVER_PORTNUMBER,Protocol.MAX_SERVER2SERVER_PORTNUMBER,to_server_port);
 			if(port_number > Protocol.MAX_SERVER2SERVER_PORTNUMBER){
-				System.out.println("No port available. This is the FIRST server");
+				System.out.println("All port numbers are available. This is the FIRST server in THIS ADDRESS");
 				return;
 			}
 			else{
 				System.out.println("there is a server listening to port " + port_number);
 				//TODO tambahin update server baru
 			}
-			
-			dbStruct = new DBStructure();
 		}
 		catch (Exception e){
 			System.out.println("coy, ada exception");
@@ -72,7 +66,7 @@ public class Server extends Thread {
 			try {
 				String recv_commands="";
 
-				System.out.println("Listening on port " +server_Socket.getLocalPort() + "...");
+				System.out.println("Listening on client-server port " +server_Socket.getLocalPort() + "...");
 				//menerima koneksi yang dibuat ke server_Socket
 				Socket server = server_Socket.accept();
 				P = new Protocol(server);
@@ -128,7 +122,7 @@ public class Server extends Thread {
 				return "FALSE-COMMAND (usage: \"create table <table_name>\")"; //command tidak sesuai
 			}
 			else {
-				if (dbStruct.createTable(commands.get(2))){
+				if (dbStruct.createTable(commands.get(2)) == true){
 					return "OK"; //berhasil
 				}
 				else{

@@ -23,6 +23,7 @@ public class DBStructure {
 	//method
 
 	public boolean createTable(String table_name){
+		System.out.println("cekpo");
 		//cek apakah tabel sudah pernah dibuat atau belum
 		if (database.get(table_name) == null) {
 			ArrayList<Data> D = new ArrayList<Data>();

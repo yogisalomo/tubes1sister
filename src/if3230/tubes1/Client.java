@@ -13,18 +13,12 @@ import java.util.Scanner;
 public class Client {
 	private Protocol P;
 	
-	public Client(String S) {
+	public Client(String S, int Port) {
 		try {
 			String command="";
 			
-			//looking for available connection to server
-			int port_number = Protocol.getAvailablePortNumber(S,Protocol.MIN_SERVER2CLIENT_PORTNUMBER,Protocol.MAX_SERVER2CLIENT_PORTNUMBER,0);
-			if(port_number > Protocol.MAX_SERVER2CLIENT_PORTNUMBER){
-				System.out.println("No port available");
-				return;
-			}
-			
-			Socket client_socket = new Socket(S, port_number);
+			//membuat koneksi ke server
+			Socket client_socket = new Socket(S, Port);
 			System.out.println("Terhubung ke server dengan address: " + client_socket.getRemoteSocketAddress());
 
 			P = new Protocol(client_socket);
