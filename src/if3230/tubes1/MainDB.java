@@ -5,7 +5,6 @@ import java.util.Iterator;
 import java.util.Scanner;
 
 public class MainDB {
-
 	public static void printTest(ArrayList<Data> D) {
 		Iterator<Data> it = D.iterator();
 		while(it.hasNext())
@@ -14,18 +13,31 @@ public class MainDB {
 		    System.out.println(obj.getData());
 		}
 	}
-
+	
 	public static void main(String[] args){
+		
 		Scanner reader = new Scanner(System.in);
 		System.out.println("1. Server, 2. Client");
 		System.out.print("Type 1 for Server. Type 2 for Client : "); int a = reader.nextInt();
 		if (a == 1) {
-			Server S = new Server();
-			S.start();
+//			System.out.println("Server Port : "); int Port = reader.nextInt();
+//			Server S = new Server(Port);
+//			S.start();
+			
+			//coba
+			System.out.println("Server Port : "); int Port = reader.nextInt();
+			ServerBaru S = new ServerBaru(Port);
+			 new Thread(S.stoc).start();
+			 new Thread(S.stos).start();
+			 new Thread(S.stotr).start();
+			
 		} else if (a == 2) {
 			reader.nextLine();
-			System.out.println("IP Target : "); String IP = reader.nextLine();
-			Client C = new Client(IP);
+			System.out.println("Target IP : "); String IP = reader.nextLine();
+			//reader.nextLine();
+			System.out.println("Target Port : "); int Port = reader.nextInt();
+//			reader.nextLine();
+			Client C = new Client(IP,Port);
 		}
 	}
 }

@@ -4,6 +4,7 @@ import java.net.Socket;
 import java.util.ArrayList;
 import java.util.Scanner;
 
+
 /** 
  * Representasi Client
  * @author Kelompok10
@@ -12,11 +13,13 @@ import java.util.Scanner;
 
 public class Client {
 	private Protocol P;
-
-	public Client(String S) {
+	
+	public Client(String S, int Port) {
 		try {
 			String command="";
-			Socket client_socket = new Socket(S, 2014);
+			
+			//membuat koneksi ke server
+			Socket client_socket = new Socket(S, Port);
 			System.out.println("Terhubung ke server dengan address: " + client_socket.getRemoteSocketAddress());
 
 			P = new Protocol(client_socket);

@@ -13,6 +13,13 @@ import java.util.ArrayList;
 public class Protocol {
 	private Socket So;
 
+	//constant for server-client port number range (10 port numbers so far)
+	public static int MIN_SERVER2CLIENT_PORTNUMBER = 2014;
+	public static int MAX_SERVER2CLIENT_PORTNUMBER = 2024;
+	//constant for server-server port number range (10 port numbers so far)
+	public static int MIN_SERVER2SERVER_PORTNUMBER = 3014;
+	public static int MAX_SERVER2SERVER_PORTNUMBER = 3024;
+
 	//constructor
 	
 	public Protocol() {
@@ -69,5 +76,37 @@ public class Protocol {
 			msg = this.receive();
 		}
 		return Messages;
+	}
+	
+	public static boolean isPortInUse(String hostName, int portNumber) {
+        boolean result;
+
+        try {
+
+            Socket s = new Socket(hostName, portNumber);
+            s.close();
+            result = true;
+
+        }
+        catch(Exception e) {
+            result = false;
+        }
+
+        return(result);
+	}
+	
+	//get any availabe port number, ranged from Protocol.MIN_PORT_NUMBER to Protocol.MAX_PORT_NUMBER
+	public static int getAvailablePortNumber(String IP, int firstPort, int lastPort, int ownPort){
+		int current_portnumber = firstPort - 1;
+		boolean temp_result = false;
+		
+		while((temp_result == false) && (current_portnumber <= lastPort)){
+			current_portnumber++;
+			if(current_portnumber != ownPort){
+				temp_result = Protocol.isPortInUse(IP, current_portnumber);
+			}
+		}
+		
+		return current_portnumber;
 	}
 }
