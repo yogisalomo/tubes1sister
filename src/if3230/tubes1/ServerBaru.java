@@ -10,7 +10,7 @@ import java.util.*;
  *
  */
 
-public class ServerBaru extends Thread {
+public class ServerBaru{
 	private ServerSocket server_Socket;
 
 	private ServerSocket server_Socket_toServer;
@@ -22,9 +22,9 @@ public class ServerBaru extends Thread {
 	int to_server_port; 
 	
 	//bikin multithread
-	public  Runnable stos;  // buat nunggu koneksi sama server lain
-	public  Runnable stoc; // buat nunggu koneksi sama client
-	public  Runnable stotr; // buat nunggu koneksi sama tracker
+	public  Thread stos;  // buat nunggu koneksi sama server lain
+	public  Thread stoc; // buat nunggu koneksi sama client
+	public  Thread stotr; // buat nunggu koneksi sama tracker
 	
 	//constructor
 	
@@ -53,34 +53,49 @@ public class ServerBaru extends Thread {
 			port_number = Protocol.getAvailablePortNumber(InetAddress.getLocalHost().getHostAddress(),Protocol.MIN_SERVER2SERVER_PORTNUMBER,Protocol.MAX_SERVER2SERVER_PORTNUMBER,to_server_port);
 			if(port_number > Protocol.MAX_SERVER2SERVER_PORTNUMBER){
 				System.out.println("All port numbers are available. This is the FIRST server in THIS ADDRESS");
-				return;
+				//return;
 			}
 			else{
 				System.out.println("there is a server listening to port " + port_number);
 				//TODO tambahin update server baru
 			}
+			stos = new Thread(new Runnable() {
+		        public void run() {
+		        	//System.out.println("geraldi");
+		           serverToServer();
+		        }
+		    }
+		    );
+			
+			stoc = new Thread(new Runnable() {
+		        public void run() {
+		        	//System.out.println("geraldi");
+		           serverToClient();
+		        }
+		    }
+		    );
+			stotr = new Thread(new Runnable() {
+		        public void run() {
+		        //	System.out.println("geraldi");
+		           serverToTracker();
+		        }
+		    }
+		    );
+			
+			stos.start();
+			stoc.start();
+			stotr.start();
 		}
 		catch (Exception e){
 			System.out.println("coy, ada exception");
 			e.printStackTrace();
 		}
 		
-		stos = new Runnable() {
-            public void run() {
-               serverToServer();
-            }
-        };
-        stoc = new Runnable() {
-            public void run() {
-               serverToClient();
-            }
-        };
-        stotr = new Runnable() {
-            public void run() {
-               serverToTracker();
-            }
-        };
-	}	
+	
+	
+	
+	
+}
 
 	//public void run() {
 	public void serverToClient(){
@@ -136,7 +151,7 @@ public class ServerBaru extends Thread {
 			try {
 				String recv_commands="";
 
-				System.out.println("Listening on client-server port " +server_Socket.getLocalPort() + "...");
+				System.out.println("Listening on server-server port " +server_Socket_toServer.getLocalPort() + "...");
 
 				//menerima koneksi yang dibuat ke server_Socket
 				Socket server = server_Socket_toServer.accept();
@@ -179,7 +194,52 @@ public class ServerBaru extends Thread {
 	}
 	
 	public void serverToTracker(){
-		
+		while(true) 
+		{			
+			try {
+				String recv_commands="";
+
+				System.out.println("Listening on tracker-server port " +server_Socket.getLocalPort() + "...");
+
+				//menerima koneksi yang dibuat ke server_Socket
+				Socket server = server_Socket_toServer.accept();
+				P = new Protocol(server);
+				System.out.println("Connected with "+ server.getRemoteSocketAddress());
+				
+				//dilakukan hingga perintah "quit" dimasukkan
+				while (!recv_commands.equals("quit")) {
+					recv_commands = P.receive();
+					if (recv_commands.equals("quit")){
+						P.send("Server quits");
+					}
+					else{
+					//	P.send(operateDatabase(recv_commands,P));
+						//ini diisi sama prosedur pembagian database , blm kbayang
+					}
+					System.out.println("Isi recv_commands : "+recv_commands);
+	
+					if (recv_commands.equals("NULL")){
+						break;
+					}
+				}	
+
+				//menutup Socket
+				server.close();
+				System.out.println("Disconnected with "+ server.getRemoteSocketAddress());
+
+			}
+			catch (SocketTimeoutException s) {
+				System.out.println("Socket timed out!");
+				break;
+			}catch (IOException e) {
+				e.printStackTrace();
+				break;
+			} catch (Exception e) {
+				System.out.println("Exception");
+				e.printStackTrace();
+			}
+		}
+	
 	}
 	
 	

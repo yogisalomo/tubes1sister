@@ -23,13 +23,13 @@ public class MainDB {
 //			System.out.println("Server Port : "); int Port = reader.nextInt();
 //			Server S = new Server(Port);
 //			S.start();
-			
+//			
 			//coba
 			System.out.println("Server Port : "); int Port = reader.nextInt();
 			ServerBaru S = new ServerBaru(Port);
-			 new Thread(S.stoc).start();
-			 new Thread(S.stos).start();
-			 new Thread(S.stotr).start();
+//			S.stoc.start();
+//			S.stos.start();
+//			S.stotr.start();
 			
 		} else if (a == 2) {
 			reader.nextLine();
