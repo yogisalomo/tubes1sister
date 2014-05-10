@@ -1,33 +1,43 @@
 package if3230.tubes1;
 
-import java.net.*;
-import java.io.*;
-import java.util.*;
+import java.net.Socket;
+import java.util.ArrayList;
+import java.util.Scanner;
+
+/** 
+ * Representasi Client
+ * @author Kelompok10
+ *
+ */
 
 public class Client {
-	private Protokol P;
+	private Protocol P;
 
 	public Client(String S) {
 		try {
 			String command="";
-			Socket client = new Socket(S, 2014);
-			System.out.println("Terhubung ke server : " + client.getRemoteSocketAddress());
+			Socket client_socket = new Socket(S, 2014);
+			System.out.println("Terhubung ke server dengan address: " + client_socket.getRemoteSocketAddress());
 
-			P = new Protokol(client);
+			P = new Protocol(client_socket);
 			Scanner reader = new Scanner(System.in);
 			
+			//antarmuka untuk client
 			while (!command.equals("quit")) {
-				System.out.print("lolSql> "); command = reader.nextLine();
+				System.out.print("SetanGundul> "); command = reader.nextLine();
 				P.send(command);
-				String response = P.recv();
+				String response = P.receive();
 				if (response.equals("REPEAT")) {
-					ArrayList<String> resp = P.repeatedRecv();
+					//melakukan repeatedReceive()
+					ArrayList<String> resp = P.repeatedReceive();
 					for (int i = 0; i < resp.size(); i++) {
 						System.out.println(resp.get(i));
 					}
-					System.out.println(P.recv());
+					System.out.println(P.receive());
 				}else System.out.println(response);
 			}
-		}catch (Exception e) {e.printStackTrace();}
+		}catch (Exception e){
+			e.printStackTrace();
+		}
 	}
 }

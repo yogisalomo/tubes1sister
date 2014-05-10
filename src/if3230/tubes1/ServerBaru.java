@@ -4,22 +4,22 @@ import java.net.*;
 import java.io.*;
 import java.util.*;
 
-/** 
- * Representasi Server
- * @author Kelompok10
- *
- */
-
-public class Server extends Thread {
-	private ServerSocket server_Socket;
+public class ServerBaru  extends Thread {
+	private ServerSocket server_Socket_client;
+	private ServerSocket server_Socket_server; // untuk connect antar server
 	private Protocol P;
 	private DBStructure dbStruct;
+	//buat ngebedain dia ngehubungin kemana
+	private int index;
+	private boolean tipe = true; // true = receive ; false = sender
 
 	//constructor
 	
-	public Server() {
+	public ServerBaru(int portC, int portS) { // portC buat alamat s-c, portS buat s-s
 		try {
-			server_Socket = new ServerSocket(2014);
+			//index = i;
+			server_Socket_client = new ServerSocket(portC);
+			server_Socket_server = new ServerSocket(portS);
 			dbStruct = new DBStructure();
 		}catch (Exception e){
 			e.printStackTrace();
@@ -28,35 +28,47 @@ public class Server extends Thread {
 
 	public void run() {
 		while(true) 
-		{
+		{	// nyambung ke tracker dulu, ada masukan sesuatu atau tidak
+			//... 
+			
 			try {
-				String recv_commands="";
+				if(index==0){//client-server
+					String recv_commands="";
 
-				System.out.println("Listening on port " +server_Socket.getLocalPort() + "...");
-				//menerima koneksi yang dibuat ke server_Socket
-				Socket server = server_Socket.accept();
-				P = new Protocol(server);
-				System.out.println("Connected with "+ server.getRemoteSocketAddress());
+					System.out.println("Listening on port " +server_Socket_client.getLocalPort() + "...");
+					//menerima koneksi yang dibuat ke server_Socket
+					Socket server = server_Socket_client.accept();
+					P = new Protocol(server);
+					System.out.println("Connected with "+ server.getRemoteSocketAddress());
+					
+					//dilakukan hingga perintah "quit" dimasukkan
+					while (!recv_commands.equals("quit")) {
+						recv_commands = P.receive();
+						if (recv_commands.equals("quit")){
+							P.send("Server quits");
+						}
+						else{
+							P.send(operateDatabase(recv_commands,P));
+						}
+						System.out.println("Isi recv_commands : "+recv_commands);
+		
+						if (recv_commands.equals("NULL")){
+							break;
+						}
+					}	
+
+					//menutup Socket
+					server.close();
+					System.out.println("Disconnected with "+ server.getRemoteSocketAddress());
+				}else{ //pasti 1 -> server-server
+					//bikin 2 kondisi lagi,, dia yg request atau dia yang terima request
+					if(tipe){
+						//receiv
+					}else{
+						//send sesuatu 
+					}
+				}
 				
-				//dilakukan hingga perintah "quit" dimasukkan
-				while (!recv_commands.equals("quit")) {
-					recv_commands = P.receive();
-					if (recv_commands.equals("quit")){
-						P.send("Server quits");
-					}
-					else{
-						P.send(operateDatabase(recv_commands,P));
-					}
-					System.out.println("Isi recv_commands : "+recv_commands);
-	
-					if (recv_commands.equals("NULL")){
-						break;
-					}
-				}	
-
-				//menutup Socket
-				server.close();
-				System.out.println("Disconnected with "+ server.getRemoteSocketAddress());
 
 			}
 			catch (SocketTimeoutException s) {
@@ -130,5 +142,13 @@ public class Server extends Thread {
 			} //ambil data dari tabel
 		}
 		else return "FALSE";
+	}
+	
+	//prosedur tambahan
+	public void setIndex(int i){
+		index = i;
+	}
+	public void setRS(boolean a){
+		tipe = a;
 	}
 }
